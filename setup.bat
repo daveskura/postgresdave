@@ -1,0 +1,11 @@
+REM
+REM  Dave Skura, 2023
+REM
+
+echo  setting vars
+
+SET PASSWORD=4165605869
+EXPORT PASSWORD
+
+echo  %PASSWORD%
+pause

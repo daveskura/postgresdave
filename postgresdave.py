@@ -1,93 +1,67 @@
 """
-  Dave Skura, 2022
+  Dave Skura, 2023
 """
 import os
 import sys
 import psycopg2 
-from dbvars import dbinfo
+
+class db_defaults: 
+	def __init__(self): 
+		self.DatabaseType='Postgres' 
+		self.updated='Dec 2/2023' 
+		 
+		self.DB_USERNAME='postgres' 
+		self.DB_HOST='localhost' 
+		self.DB_PORT='1532' 
+		self.DB_NAME='postgres' 
+		self.DB_SCHEMA=''		#'weather' 
+		self.dbconnectionstr='usr=postgres; svr=localhost; port=1532; schema=postgres;' 
 
 class db:
-	def setvars(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA):
+	def dbversion(self):
+		return self.queryone('SELECT VERSION()')
+
+	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='public'):
+		self.version=1.0
+
+		self.db_dets = db_defaults()
+		self.db_dets.DB_SCHEMA = DB_SCHEMA
+
+		self.ihost = self.db_dets.DB_HOST				
+		self.iport = self.db_dets.DB_PORT				
+		self.idb = self.db_dets.DB_NAME					
+		self.ischema = self.db_dets.DB_SCHEMA		
+		if self.ischema == '':
+			self.ischema = 'public'
+		self.iuser = self.db_dets.DB_USERNAME		
+		self.ipwd = DB_USERPWD			
+		self.connection_str = self.db_dets.dbconnectionstr
+
+		self.dbconn = None
+		self.cur = None
+		if DB_USERPWD != 'no-password-supplied':
+			self.connect()
+		else:
+			try:
+				f = open('.pwd','r')
+				PWD_in_file = f.read()
+				self.ipwd = PWD_in_file
+				f.close()
+				self.connect()
+			except: 
+				pass
+
+	def setConnectionDetails(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA):
+
+		self.iuser = DB_USERNAME
+		self.ipwd = DB_USERPWD			
 		self.ihost = DB_HOST				
 		self.iport = DB_PORT				
 		self.idb = DB_NAME					
 		self.ischema = DB_SCHEMA		
 		if self.ischema == '':
 			self.ischema = 'public'
-		self.iuser = DB_USERNAME
-		self.ipwd = DB_USERPWD			
-
-		self.dbconn = None
-		self.cur = None
 		self.connect()
-
-	def __init__(self):
-		self.version=1.0
-		
-		# ***** edit these DB credentials for the installation to work *****
-		self.ihost = dbinfo().DB_HOST				# 'localhost'
-		self.iport = dbinfo().DB_PORT				#	"5432"
-		self.idb = dbinfo().DB_NAME					# 'nfl'
-		self.ischema = dbinfo().DB_SCHEMA		#	'_raw'
-		if self.ischema == '':
-			self.ischema = 'public'
-		self.iuser = dbinfo().DB_USERNAME		#	'dad'
-		self.ipwd = dbinfo().DB_USERPWD			#	'dad'
-		self.connection_str = dbinfo().dbconnectionstr
-
-		self.dbconn = None
-		self.cur = None
-
-	def export_zetl(self):
-		
-		etl_list = self.query('SELECT DISTINCT etl_name FROM ' + self.ischema + '.z_etl ORDER BY etl_name')
-		for etl in etl_list:
-			etl_name = etl[0]
-			qry = "SELECT etl_name,stepnum,sqlfile,steptablename,estrowcount FROM " + self.ischema + ".z_etl WHERE etl_name = '" + etl_name + "' ORDER BY stepnum"
-			csv_filename = 'zetl_scripts\\' + etl_name + '\\z_etl.csv'
-			self.export_query_to_csv(qry,csv_filename)
-
-	def load_z_etlcsv_if_forced(self,etl_name='',option=''):
-		szdelimiter = ','
-		if (etl_name != '' and option == '-f'):
-			qualified_table = self.ischema + ".z_etl"
-			dsql = "DELETE FROM " +  qualified_table + " WHERE etl_name = '" + etl_name + "'"
-			self.execute(dsql)
-			self.commit()
-			csv_filename = 'zetl_scripts\\' + etl_name + '\\z_etl.csv'
-			f = open(csv_filename,'r')
-			hdrs = f.read(1000).split('\n')[0].strip().split(szdelimiter)
-			f.close()		
-			
-			isqlhdr = 'INSERT INTO ' + qualified_table + '('
-
-			for i in range(0,len(hdrs)):
-				isqlhdr += hdrs[i] + ','
-			isqlhdr = isqlhdr[:-1] + ') VALUES '
-
-			skiprow1 = 0
-			ilines = ''
-
-			with open(csv_filename) as myfile:
-				for line in myfile:
-					if skiprow1 == 0:
-						skiprow1 = 1
-					else:
-						row = line.rstrip("\n").split(szdelimiter)
-
-						newline = '('
-						for j in range(0,len(row)):
-							if row[j].lower() == 'none' or row[j].lower() == 'null':
-								newline += "NULL,"
-							else:
-								newline += "'" + row[j].replace(',','').replace("'",'') + "',"
-							
-						ilines += newline[:-1] + ')'
-						
-						qry = isqlhdr + ilines
-						ilines = ''
-						self.execute(qry)
-						self.commit()
 
 	def is_an_int(self,prm):
 			try:
@@ -97,39 +71,6 @@ class db:
 					return False
 			except:
 					return False
-
-	def add_etl_step(self,p_etl_name,p_etl_step,p_etl_filename):
-		isql = "INSERT INTO " + self.ischema + ".z_etl(etl_name,stepnum,sqlfile) VALUES ('" + p_etl_name + "'," + p_etl_step + ",'" + p_etl_filename + "')"
-		self.execute(isql)
-		self.commit()
-		print('Adding ' + p_etl_name + '\\' + p_etl_filename)
-
-	def etl_step_exists(self,etl_name,etl_step):
-		sql = "SELECT COUNT(*) FROM " + self.ischema + ".z_etl WHERE etl_name = '" + etl_name + "' and stepnum = " + etl_step
-		etlrowcount = self.queryone(sql)
-		if etlrowcount == 0:
-			return False
-		else:
-			return True
-
-	def load_folders_to_zetl(self,this_etl_name='all'):
-		etl_folder = 'zetl_scripts'
-		subdirs = [x[0] for x in os.walk(etl_folder)]
-		for i in range(0,len(subdirs)):
-			possible_etl_dir = subdirs[i]
-			if len(possible_etl_dir.split('\\')) == 2:
-				etl_name = possible_etl_dir.split('\\')[1]
-				if (this_etl_name == 'all' or etl_name == this_etl_name):
-					
-					dir_list = os.listdir(etl_folder + '\\' + etl_name)
-					for etl_script_file in os.listdir(etl_folder + '\\' + etl_name):
-						if etl_script_file.endswith(".sql"):
-							if len(etl_script_file.split('.')) == 3:
-								etl_step = etl_script_file.split('.')[0]
-								file_suffix = etl_script_file.split('.')[1] + '.' + etl_script_file.split('.')[2]
-								if self.is_an_int(etl_step):
-									if not self.etl_step_exists(etl_name,etl_step):
-										self.add_etl_step(etl_name,etl_step,etl_script_file)		
 
 	def export_query_to_str(self,qry,szdelimiter=','):
 		self.cur.execute(qry)
@@ -221,12 +162,8 @@ class db:
 						batchcount += 1
 						row = line.rstrip("\n").split(szdelimiter)
 						newline = "("
-						if 'loadfile' in withextrafields: # loadfile, stationid, province
-							newline += "'" + withextrafields['loadfile']  + "',"
-						if 'stationid' in withextrafields: # loadfile, stationid,province
-							newline += "'" + withextrafields['stationid'] + "',"
-						if 'province' in withextrafields: # loadfile, stationid, province
-							newline += "'" + withextrafields['province'] + "',"
+						for var in withextrafields:
+							newline += "'" + withextrafields[var]  + "',"
 
 						for j in range(0,len(row)):
 							if row[j].lower() == 'none' or row[j].lower() == 'null':
@@ -337,16 +274,16 @@ class db:
 	def connect(self):
 		p_options = "-c search_path=" + self.ischema
 		try:
-			self.dbconn = psycopg2.connect(
-					host=self.ihost,
-					database=self.idb,
-					user=self.iuser,
-					password=self.ipwd,
-					options=p_options
-					#autocommit=True
-			)
-			self.dbconn.set_session(autocommit=True)
-			self.cur = self.dbconn.cursor()
+			if not self.dbconn:
+				self.dbconn = psycopg2.connect(
+						host=self.ihost,
+						database=self.idb,
+						user=self.iuser,
+						password=self.ipwd,
+						options=p_options
+				)
+				self.dbconn.set_session(autocommit=True)
+				self.cur = self.dbconn.cursor()
 		except Exception as e:
 			raise Exception(str(e))
 
