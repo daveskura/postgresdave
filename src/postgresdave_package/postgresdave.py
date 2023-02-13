@@ -41,15 +41,11 @@ class db:
 		self.cur = None
 		if DB_USERPWD != 'no-password-supplied':
 			self.connect()
-		else:
-			try:
-				f = open('.pwd','r')
-				PWD_in_file = f.read()
-				self.ipwd = PWD_in_file
-				f.close()
-				self.connect()
-			except: 
-				pass
+
+	def savepwd(self,pwd):
+		f = open('.pwd','w')
+		f.write(pwd)
+		f.close()
 
 	def setConnectionDetails(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA):
 
@@ -272,6 +268,15 @@ class db:
 			self.dbconn.close()
 
 	def connect(self):
+		if self.ipwd == 'no-password-supplied': # trying to connect without password.  Need pwd from saved file.
+			try:
+				f = open('.pwd','r')
+				self.ipwd = f.read()
+				f.close()
+			except: 
+				print('No Password is saved.  call savepwd() to save password.')
+				sys.exit(0)
+
 		p_options = "-c search_path=" + self.ischema
 		try:
 			if not self.dbconn:
@@ -284,6 +289,7 @@ class db:
 				)
 				self.dbconn.set_session(autocommit=True)
 				self.cur = self.dbconn.cursor()
+
 		except Exception as e:
 			raise Exception(str(e))
 
@@ -298,8 +304,6 @@ class db:
 	def commit(self):
 		self.dbconn.commit()
 
-	def close(self):
-		self.dbconn.close()
 
 	def execute(self,qry):
 		try:
@@ -319,5 +323,14 @@ class db:
 		except Exception as e:
 			raise Exception("SQL ERROR:\n\n" + str(e))
 
+if __name__ == '__main__':
+	print ("db command line") # 
+	print('')
 
+	mydb = db()
+	mydb.connect()
+	print(mydb.dbversion())
+
+	mydb.close()	
+	print('')
 
