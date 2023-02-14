@@ -72,6 +72,7 @@ class db:
 		return self.queryone('SELECT VERSION()')
 
 	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='no-schema-supplied'):
+		self.db_conn_dets = dbconnection_details()
 		self.dbconn = None
 		self.cur = None
 
@@ -81,7 +82,6 @@ class db:
 		if DB_SCHEMA != 'no-schema-supplied':
 			self.db_conn_dets.DB_SCHEMA = DB_SCHEMA			#if you pass in a schema it overwrites the stored schema
 
-		self.db_conn_dets = dbconnection_details()
 
 	def savepwd(self,pwd):
 		self.db_conn_dets.savepwd(pwd)
@@ -369,6 +369,8 @@ if __name__ == '__main__':
 	print('')
 
 	mydb = db()
+	mydb.saveConnectionDefaults('postgres','4165605869','localhost','1532','postgres','public')
+
 	print(mydb.db_conn_dets.dbconnectionstr())
 	print('')
 	mydb.connect()
