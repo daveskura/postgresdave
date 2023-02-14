@@ -5,58 +5,100 @@ import os
 import sys
 import psycopg2 
 
-class db_defaults: 
+class dbconnection_details: 
 	def __init__(self): 
 		self.DatabaseType='Postgres' 
-		self.updated='Dec 2/2023' 
-		 
-		self.DB_USERNAME='postgres' 
-		self.DB_HOST='localhost' 
-		self.DB_PORT='1532' 
-		self.DB_NAME='postgres' 
-		self.DB_SCHEMA=''		#'weather' 
-		self.dbconnectionstr='usr=postgres; svr=localhost; port=1532; schema=postgres;' 
+		self.updated='Feb 13/2023' 
 
-class db:
-	def dbversion(self):
-		return self.queryone('SELECT VERSION()')
+		self.DB_USERNAME='' 
+		self.DB_USERPWD=''
+		self.DB_HOST='' 
+		self.DB_PORT='' 
+		self.DB_NAME='' 
+		self.DB_SCHEMA=''
+		self.loadSettingsFromFile()
 
-	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='public'):
-		self.version=1.0
+	def loadSettingsFromFile(self):
+		try:
+			f = open('.connection','r')
+			connectionstr = f.read()
+			f.close()
+			connarr = connectionstr.split(' - ')
 
-		self.db_dets = db_defaults()
-		self.db_dets.DB_SCHEMA = DB_SCHEMA
+			self.DB_USERNAME	= connarr[0]
+			self.DB_HOST			= connarr[1] 
+			self.DB_PORT			= connarr[2]
+			self.DB_NAME			= connarr[3]
+			self.DB_SCHEMA		= connarr[4]
+			if self.DB_SCHEMA.strip() == '':
+				self.DB_SCHEMA = 'public'
 
-		self.ihost = self.db_dets.DB_HOST				
-		self.iport = self.db_dets.DB_PORT				
-		self.idb = self.db_dets.DB_NAME					
-		self.ischema = self.db_dets.DB_SCHEMA		
-		if self.ischema == '':
-			self.ischema = 'public'
-		self.iuser = self.db_dets.DB_USERNAME		
-		self.ipwd = DB_USERPWD			
-		self.connection_str = self.db_dets.dbconnectionstr
+		except:
+			#saved connection details not found. using defaults
+			self.DB_USERNAME='postgres' 
+			self.DB_HOST='localhost' 
+			self.DB_PORT='1532' 
+			self.DB_NAME='postgres' 
+			self.DB_SCHEMA='public'		
 
-		self.dbconn = None
-		self.cur = None
-		if DB_USERPWD != 'no-password-supplied':
-			self.connect()
+		try:
+			f = open('.pwd','r')
+			self.DB_USERPWD = f.read()
+			f.close()
+		except:
+			self.DB_USERPWD='no-password-supplied'
 
 	def savepwd(self,pwd):
 		f = open('.pwd','w')
 		f.write(pwd)
 		f.close()
 
-	def setConnectionDetails(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA):
+	def dbconnectionstr(self):
+		return 'usr=' + self.DB_USERNAME + '; svr=' + self.DB_HOST + '; port=' + self.DB_PORT + '; Database=' + self.DB_NAME + '; Schema=' + self.DB_SCHEMA + '; pwd=' + self.DB_USERPWD
 
-		self.iuser = DB_USERNAME
-		self.ipwd = DB_USERPWD			
-		self.ihost = DB_HOST				
-		self.iport = DB_PORT				
-		self.idb = DB_NAME					
-		self.ischema = DB_SCHEMA		
-		if self.ischema == '':
-			self.ischema = 'public'
+	def saveConnectionDefaults(self,DB_USERNAME='postgres',DB_USERPWD='no-password-supplied',DB_HOST='localhost',DB_PORT='1532',DB_NAME='postgres',DB_SCHEMA='public'):
+		f = open('.pwd','w')
+		f.write(DB_USERPWD)
+		f.close()
+
+		f = open('.connection','w')
+		f.write(DB_USERNAME + ' - ' + DB_HOST + ' - ' + DB_PORT + ' - ' + DB_NAME + ' - ' + DB_SCHEMA)
+		f.close()
+
+		self.loadSettingsFromFile()
+
+class db:
+	def dbversion(self):
+		return self.queryone('SELECT VERSION()')
+
+	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='no-schema-supplied'):
+		self.dbconn = None
+		self.cur = None
+
+		if DB_USERPWD != 'no-password-supplied':
+			self.db_conn_dets.DB_USERPWD = DB_USERPWD			#if you pass in a password it overwrites the stored pwd
+
+		if DB_SCHEMA != 'no-schema-supplied':
+			self.db_conn_dets.DB_SCHEMA = DB_SCHEMA			#if you pass in a schema it overwrites the stored schema
+
+		self.db_conn_dets = dbconnection_details()
+
+	def savepwd(self,pwd):
+		self.db_conn_dets.savepwd(pwd)
+
+	def saveConnectionDefaults(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA='public'):
+		self.db_conn_dets.saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)
+
+	def useConnectionDetails(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA):
+
+		self.db_conn_dets.DB_USERNAME = DB_USERNAME
+		self.db_conn_dets.DB_USERPWD = DB_USERPWD			
+		self.db_conn_dets.DB_HOST = DB_HOST				
+		self.db_conn_dets.DB_PORT = DB_PORT				
+		self.db_conn_dets.DB_NAME = DB_NAME					
+		self.db_conn_dets.DB_SCHEMA = DB_SCHEMA		
+		if self.db_conn_dets.DB_SCHEMA == '':
+			self.db_conn_dets.DB_SCHEMA = 'public'
 		self.connect()
 
 	def is_an_int(self,prm):
@@ -109,7 +151,7 @@ class db:
 		try:
 			this_table = tblname.split('.')[1]
 		except:
-			this_schema = self.ischema
+			this_schema = self.db_conn_dets.DB_SCHEMA
 			this_table = tblname.split('.')[0]
 
 		qualified_table = this_schema + '.' + this_table
@@ -121,7 +163,7 @@ class db:
 		try:
 			this_table = tblname.split('.')[1]
 		except:
-			this_schema = self.ischema
+			this_schema = self.db_conn_dets.DB_SCHEMA
 			this_table = tblname.split('.')[0]
 
 		qualified_table = this_schema + '.' + this_table
@@ -187,7 +229,7 @@ class db:
 		try:
 			this_table = tblname.split('.')[1]
 		except:
-			this_schema = self.ischema
+			this_schema = self.db_conn_dets.DB_SCHEMA
 			this_table = tblname.split('.')[0]
 
 		qualified_table = this_schema + '.' + this_table
@@ -250,7 +292,7 @@ class db:
 			this_schema = tblname.split('.')[0]
 			this_table = tblname.split('.')[1]
 		except:
-			this_schema = self.ischema
+			this_schema = self.db_conn_dets.DB_SCHEMA
 			this_table = tblname.split('.')[0]
 
 		sql = """
@@ -268,30 +310,29 @@ class db:
 			self.dbconn.close()
 
 	def connect(self):
-		if self.ipwd == 'no-password-supplied': # trying to connect without password.  Need pwd from saved file.
+
+		if self.db_conn_dets.DB_USERPWD == 'no-password-supplied':
+			print('Password must be passed in or stored in order to connect.\n')
+			print('Call \n\t savepwd(pwd) to use defaults or \n') 
+			print('\t saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)\n\n')
+
+			sys.exit(0)
+		else:
+			p_options = "-c search_path=" + self.db_conn_dets.DB_SCHEMA
 			try:
-				f = open('.pwd','r')
-				self.ipwd = f.read()
-				f.close()
-			except: 
-				print('No Password is saved.  call savepwd() to save password.')
-				sys.exit(0)
+				if not self.dbconn:
+					self.dbconn = psycopg2.connect(
+							host=self.db_conn_dets.DB_HOST,
+							database=self.db_conn_dets.DB_NAME,
+							user=self.db_conn_dets.DB_USERNAME,
+							password=self.db_conn_dets.DB_USERPWD,
+							options=p_options
+					)
+					self.dbconn.set_session(autocommit=True)
+					self.cur = self.dbconn.cursor()
 
-		p_options = "-c search_path=" + self.ischema
-		try:
-			if not self.dbconn:
-				self.dbconn = psycopg2.connect(
-						host=self.ihost,
-						database=self.idb,
-						user=self.iuser,
-						password=self.ipwd,
-						options=p_options
-				)
-				self.dbconn.set_session(autocommit=True)
-				self.cur = self.dbconn.cursor()
-
-		except Exception as e:
-			raise Exception(str(e))
+			except Exception as e:
+				raise Exception(str(e))
 
 	def query(self,qry):
 		if not self.dbconn:
@@ -328,9 +369,16 @@ if __name__ == '__main__':
 	print('')
 
 	mydb = db()
+	print(mydb.db_conn_dets.dbconnectionstr())
+	print('')
 	mydb.connect()
 	print(mydb.dbversion())
+	print('')
+	qry = """
+	SELECT DISTINCT table_catalog as database_name, table_schema as schema 
+	FROM INFORMATION_SCHEMA.TABLES
+	"""
+	print(mydb.export_query_to_str(qry,'\t'))
 
 	mydb.close()	
-	print('')
 

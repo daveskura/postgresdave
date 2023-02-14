@@ -1,16 +1,18 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling","psycopg2"]
+
 build-backend = "hatchling.build"
 
 [project]
 name = "postgresdave_package"
-version = "1.0.1"
+version = "1.1.0"
 authors = [
   { name="Dave Skura", email="dskura@gmail.com" },
 ]
 description = "A wrapper for simplified Postgres usage using psycopg2."
 readme = "README.md"
 requires-python = ">=3.7"
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",

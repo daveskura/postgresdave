@@ -1,6 +1,40 @@
 # postgresdave
 My database wrapper on psycopg2
 
+# examples
+
+### command line
+py -m postgresdave_package.postgresdave
+
+### sample python program
+from postgresdave_package.postgresdave import db 
+
+print('sample program\n')
+
+mydb = db()
+
+mydb.connect()
+
+print(mydb.dbversion())
+
+print(' - - - - - - - - - - - - - - - - - - - - - - - - - - -  \n')
+
+print('table_count = ' + str(mydb.queryone('SELECT COUNT(*) as table_count FROM INFORMATION_SCHEMA.TABLES')))
+
+print(' - - - - - - - - - - - - - - - - - - - - - - - - - - -  \n')
+
+qry = """
+SELECT DISTINCT table_catalog as database_name, table_schema as schema 
+FROM INFORMATION_SCHEMA.TABLES
+"""
+
+print(mydb.export_query_to_str(qry,'\t'))
+
+mydb.close()		
+
+
+# methods
+
 ### dbversion()
 returns Postgres version
 
@@ -18,9 +52,11 @@ DB_SCHEMA='public'
 ### savepwd(pwd)
 saved password locally so you dont have to pass it in next time
 
-### setConnectionDetails(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)
-Set new connection details and connect.  
+### saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)
+save all connection details locally
 
+### useConnectionDetails(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)
+Use these connection details and connect.  
 
 ### is_an_int(prm)
 utility.  check if value it an int
