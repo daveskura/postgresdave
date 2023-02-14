@@ -4,11 +4,13 @@
 import os
 import sys
 import psycopg2 
+from datetime import *
+import time
 
 class dbconnection_details: 
 	def __init__(self): 
 		self.DatabaseType='Postgres' 
-		self.updated='Feb 13/2023' 
+		self.updated='Feb 14/2023' 
 
 		self.DB_USERNAME='' 
 		self.DB_USERPWD=''
@@ -68,10 +70,9 @@ class dbconnection_details:
 		self.loadSettingsFromFile()
 
 class db:
-	def dbversion(self):
-		return self.queryone('SELECT VERSION()')
-
 	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='no-schema-supplied'):
+		self.enable_logging = False
+		self.max_loglines = 500
 		self.db_conn_dets = dbconnection_details()
 		self.dbconn = None
 		self.cur = None
@@ -82,9 +83,41 @@ class db:
 		if DB_SCHEMA != 'no-schema-supplied':
 			self.db_conn_dets.DB_SCHEMA = DB_SCHEMA			#if you pass in a schema it overwrites the stored schema
 
+	def dbversion(self):
+		return self.queryone('SELECT VERSION()')
+	
+	def logquery(self,logline,duration=0.0):
+		if self.enable_logging:
+			startat = (datetime.now())
+			startdy = str(startat.year) + '-' + ('0' + str(startat.month))[-2:] + '-' + str(startat.day)
+			starttm = str(startat.hour) + ':' + ('0' + str(startat.minute))[-2:] + ':' + ('0' + str(startat.second))[-2:]
+			start_dtm = startdy + ' ' + starttm
+			preline = start_dtm + '\nduration=' + str(duration) + '\n'
+
+			log_contents=''
+			try:
+				f = open('.querylog','r')
+				log_contents = f.read()
+				f.close()
+			except:
+				pass
+
+			logs = log_contents.splitlines()
+			
+			logs.insert(0,preline + logline + '\n ------------ ')
+			f = open('.querylog','w+')
+			numlines = 0
+			for line in logs:
+				numlines += 1
+				f.write(line + '\n')
+				if numlines > self.max_loglines:
+					break
+
+			f.close()
 
 	def savepwd(self,pwd):
 		self.db_conn_dets.savepwd(pwd)
+		self.db_conn_dets.DB_USERPWD = pwd
 
 	def saveConnectionDefaults(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA='public'):
 		self.db_conn_dets.saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)
@@ -111,7 +144,7 @@ class db:
 					return False
 
 	def export_query_to_str(self,qry,szdelimiter=','):
-		self.cur.execute(qry)
+		self.execute(qry)
 		f = ''
 		sz = ''
 		for k in [i[0] for i in self.cur.description]:
@@ -128,7 +161,7 @@ class db:
 		return f
 
 	def export_query_to_csv(self,qry,csv_filename,szdelimiter=','):
-		self.cur.execute(qry)
+		self.execute(qry)
 		f = open(csv_filename,'w')
 		sz = ''
 		for k in [i[0] for i in self.cur.description]:
@@ -338,7 +371,7 @@ class db:
 		if not self.dbconn:
 			self.connect()
 
-		self.cur.execute(qry)
+		self.execute(qry)
 		all_rows_of_data = self.cur.fetchall()
 		return all_rows_of_data
 
@@ -348,9 +381,13 @@ class db:
 
 	def execute(self,qry):
 		try:
+			begin_at = time.time() * 1000
 			if not self.dbconn:
 				self.connect()
 			self.cur.execute(qry)
+			end_at = time.time() * 1000
+			duration = end_at - begin_at
+			self.logquery(qry,duration)
 		except Exception as e:
 			raise Exception("SQL ERROR:\n\n" + str(e))
 
@@ -367,11 +404,9 @@ class db:
 if __name__ == '__main__':
 	print ("db command line") # 
 	print('')
-
 	mydb = db()
-	mydb.saveConnectionDefaults('postgres','4165605869','localhost','1532','postgres','public')
-
-	print(mydb.db_conn_dets.dbconnectionstr())
+	#mydb.enable_logging = True
+	mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
 	print('')
 	mydb.connect()
 	print(mydb.dbversion())
