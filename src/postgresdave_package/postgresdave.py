@@ -55,6 +55,9 @@ class dbconnection_details:
 		f.write(pwd)
 		f.close()
 
+	def dbstr(self):
+		return self.DB_NAME + '/' + self.DB_SCHEMA + '@' + self.DB_HOST
+
 	def dbconnectionstr(self):
 		return 'usr=' + self.DB_USERNAME + '; svr=' + self.DB_HOST + '; port=' + self.DB_PORT + '; Database=' + self.DB_NAME + '; Schema=' + self.DB_SCHEMA + '; pwd=' + self.DB_USERPWD
 
