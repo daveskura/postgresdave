@@ -55,9 +55,6 @@ class dbconnection_details:
 		f.write(pwd)
 		f.close()
 
-	def dbstr(self):
-		return self.DB_NAME + '/' + self.DB_SCHEMA + '@' + self.DB_HOST
-
 	def dbconnectionstr(self):
 		return 'usr=' + self.DB_USERNAME + '; svr=' + self.DB_HOST + '; port=' + self.DB_PORT + '; Database=' + self.DB_NAME + '; Schema=' + self.DB_SCHEMA + '; pwd=' + self.DB_USERPWD
 
@@ -85,6 +82,10 @@ class db:
 
 		if DB_SCHEMA != 'no-schema-supplied':
 			self.db_conn_dets.DB_SCHEMA = DB_SCHEMA			#if you pass in a schema it overwrites the stored schema
+
+	def dbstr(self):
+		return self.db_conn_dets.DB_NAME + '/' + self.db_conn_dets.DB_SCHEMA + '@' + self.db_conn_dets.DB_HOST
+
 
 	def dbversion(self):
 		return self.queryone('SELECT VERSION()')
