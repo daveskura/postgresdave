@@ -23,7 +23,8 @@ class dbconnection_details:
 	def loadSettingsFromFile(self):
 		try:
 			f = open('.connection','r')
-			connectionstr = f.read()
+			connectionstrlines = f.read()
+			connectionstr = connectionstrlines.splitlines()[0]
 			f.close()
 			connarr = connectionstr.split(' - ')
 
@@ -45,7 +46,8 @@ class dbconnection_details:
 
 		try:
 			f = open('.pwd','r')
-			self.DB_USERPWD = f.read()
+			pwdlines = f.read()
+			self.DB_USERPWD = pwdlines.splitlines()[0]
 			f.close()
 		except:
 			self.DB_USERPWD='no-password-supplied'
@@ -409,10 +411,10 @@ if __name__ == '__main__':
 	print ("db command line") # 
 	print('')
 	mydb = db()
+	mydb.connect()
 	#mydb.enable_logging = True
 	mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
 	print('')
-	mydb.connect()
 	print(mydb.dbversion())
 	print('')
 	qry = """
