@@ -65,16 +65,25 @@ Save the connection details locally once using the method saveConnectionDefaults
 > from postgresdave_package.postgresdave import db 
 >
 > mydb = db()
+>
 > mydb.connect()
+>
 > print(mydb.dbversion())
+>
 > print(' - - - - - - - - - - - - - - - - - - - - - - - - - - -  \n')
+>
 > print('table_count = ' + str(mydb.queryone('SELECT COUNT(*) as table_count FROM INFORMATION_SCHEMA.TABLES')))
+>
 > print(' - - - - - - - - - - - - - - - - - - - - - - - - - - -  \n')
 > 
 > qry = """
+>
 > SELECT DISTINCT table_catalog as database_name, table_schema as schema 
+>
 > FROM INFORMATION_SCHEMA.TABLES
+>
 > """
+>
 > print(mydb.export_query_to_str(qry,'\t'))
 > 
 > mydb.close()
@@ -86,10 +95,15 @@ Save the connection details locally once using the method saveConnectionDefaults
 > from postgresdave_package.postgresdave import db 
 >
 > mydb = db()
+>
 > mydb.connect()
+>
 > if mydb.does_table_exist('customer'):
+>
 >	mydb.load_csv_to_table('customer.csv','customer',True,'\t') # truncate first=True, delimiter=tab
+>
 > else:
+>
 >	print('create table first')
 >
 > print('Table loaded')
@@ -103,10 +117,15 @@ Save the connection details locally once using the method saveConnectionDefaults
 > from postgresdave_package.postgresdave import db 
 >
 > mydb = db()
+>
 > mydb.connect()
+>
 > if mydb.does_table_exist('customer'):
+>
 >	mydb.export_table_to_csv('customer.csv','customer','\t') # delimiter=tab
+>
 > else:
+>
 >	print('Table does not exist.  Nothing to export.')
 >
 > print('csv file created ')
