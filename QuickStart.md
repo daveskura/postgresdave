@@ -3,6 +3,8 @@
 ### test your database connection on the commandline
 py -m postgresdave_package.postgresdave
 
+You will be prompted for a password if there is not one saved locally.  You can type in the password when prompted for the test connect and decide to either save the password locally or not using the prompts.
+
 ### If your postgres database is installed on your laptop/pc
 
 All the connection details will be defaulted, except password.  Save the password locally once using the method savepwd().  Calling this method once will cause a .pwd file to be created.  After this you don't have to call the savepwd() method again unless the password changes.
