@@ -11,7 +11,7 @@ All the connection details will be defaulted, except password.  You can either e
 
 ---
 
-Try just connecting and follow the prompts:
+#### Try just connecting and follow the prompts:
 >
 > from postgresdave_package.postgresdave import db 
 >
@@ -24,7 +24,7 @@ Try just connecting and follow the prompts:
 > mydb.close()
 > 
 
-Specify one time, the password in code then connect using defaults:
+#### Specify one time, the password in code then connect using defaults:
 >
 > from postgresdave_package.postgresdave import db 
 >
