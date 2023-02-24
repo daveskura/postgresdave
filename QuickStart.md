@@ -24,7 +24,8 @@ All the connection details will be defaulted, except password.  You can either e
 > mydb.close()
 > 
 
-#### Specify one time, the password in code then connect using defaults:
+
+#### Alternatively, specify one time, the password in code then connect using defaults:
 >
 > from postgresdave_package.postgresdave import db 
 >
@@ -58,3 +59,57 @@ Save the connection details locally once using the method saveConnectionDefaults
 > mydb.close()
 > 
 
+### Run your queries using execute(qry),query(qry),queryone(qry),export_query_to_str(qry)
+
+>
+> from postgresdave_package.postgresdave import db 
+>
+> mydb = db()
+> mydb.connect()
+> print(mydb.dbversion())
+> print(' - - - - - - - - - - - - - - - - - - - - - - - - - - -  \n')
+> print('table_count = ' + str(mydb.queryone('SELECT COUNT(*) as table_count FROM INFORMATION_SCHEMA.TABLES')))
+> print(' - - - - - - - - - - - - - - - - - - - - - - - - - - -  \n')
+> 
+> qry = """
+> SELECT DISTINCT table_catalog as database_name, table_schema as schema 
+> FROM INFORMATION_SCHEMA.TABLES
+> """
+> print(mydb.export_query_to_str(qry,'\t'))
+> 
+> mydb.close()
+> 
+
+### Load a Postgres table from a matching csv file
+
+>
+> from postgresdave_package.postgresdave import db 
+>
+> mydb = db()
+> mydb.connect()
+> if mydb.does_table_exist('customer'):
+>	mydb.load_csv_to_table('customer.csv','customer',True,'\t') # truncate first=True, delimiter=tab
+> else:
+>	print('create table first')
+>
+> print('Table loaded')
+>
+> mydb.close()
+>
+
+### Export a Postgres table to a csv file
+
+>
+> from postgresdave_package.postgresdave import db 
+>
+> mydb = db()
+> mydb.connect()
+> if mydb.does_table_exist('customer'):
+>	mydb.export_table_to_csv('customer.csv','customer','\t') # delimiter=tab
+> else:
+>	print('Table does not exist.  Nothing to export.')
+>
+> print('csv file created ')
+>
+> mydb.close()
+>
