@@ -17,8 +17,6 @@ All the connection details will be defaulted, except password.  You can either e
 >
 > mydb = db()
 >
-> mydb.connect()
->
 > print(mydb.dbversion())
 >
 > mydb.close()
@@ -32,8 +30,6 @@ All the connection details will be defaulted, except password.  You can either e
 > mydb = db()
 >
 > ***mydb.savepwd('mypassword')***
->
-> mydb.connect()
 >
 > print(mydb.dbversion())
 >
@@ -52,8 +48,6 @@ Save the connection details locally once using the method saveConnectionDefaults
 >
 > mydb.saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)
 >
-> mydb.connect()
->
 > print(mydb.dbversion())
 >
 > mydb.close()
@@ -65,8 +59,6 @@ Save the connection details locally once using the method saveConnectionDefaults
 > from postgresdave_package.postgresdave import db 
 >
 > mydb = db()
->
-> mydb.connect()
 >
 > print(mydb.dbversion())
 >
@@ -96,8 +88,6 @@ Save the connection details locally once using the method saveConnectionDefaults
 >
 > mydb = db()
 >
-> mydb.connect()
->
 > mydb.load_csv_to_table('customer.csv','customer',True,'\t') # truncate first=True, delimiter=tab
 >
 > print('Table loaded')
@@ -111,8 +101,6 @@ Save the connection details locally once using the method saveConnectionDefaults
 > from postgresdave_package.postgresdave import db 
 >
 > mydb = db()
->
-> mydb.connect()
 >
 > mydb.export_table_to_csv('customer.csv','customer','\t') # delimiter=tab
 >
