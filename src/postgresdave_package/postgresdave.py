@@ -349,12 +349,12 @@ class db:
 			self.dbconn.close()
 
 	def connect(self):
-		user_response_to_save = 'N'
+		connects_entered = False
 		if self.db_conn_dets.DB_USERPWD == 'no-password-supplied':
 			print('The connection password has not been passed in or stored.  In the future, call \n\t savepwd(DB_USERPWD) to connect with defaults or ')
 			print('\t saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)\n')
 			self.db_conn_dets.DB_USERPWD = input('Password :')
-			user_response_to_save = input('Save this password locally? (y/n) :')
+			connects_entered = True
 
 		p_options = "-c search_path=" + self.db_conn_dets.DB_SCHEMA
 		try:
@@ -369,9 +369,11 @@ class db:
 				self.dbconn.set_session(autocommit=True)
 				self.cur = self.dbconn.cursor()
 
-			# only if successful connect after user prompted and got Y do we save pwd
-			if user_response_to_save.upper()[:1] == 'Y':
-				self.savepwd(self.db_conn_dets.DB_USERPWD)
+				# only if successful connect after user prompted and got Y do we save pwd
+				if connects_entered:
+					user_response_to_save = input('Save this password locally? (y/n) :')
+					if user_response_to_save.upper()[:1] == 'Y':
+						self.savepwd(self.db_conn_dets.DB_USERPWD)
 
 		except Exception as e:
 			raise Exception(str(e))
