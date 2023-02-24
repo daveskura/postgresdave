@@ -59,7 +59,7 @@ Save the connection details locally once using the method saveConnectionDefaults
 > mydb.close()
 > 
 
-### Run your queries using execute(qry),query(qry),queryone(qry),export_query_to_str(qry)
+### Connect and run your queries using execute(qry),query(qry),queryone(qry),export_query_to_str(qry)
 
 >
 > from postgresdave_package.postgresdave import db 
@@ -98,13 +98,7 @@ Save the connection details locally once using the method saveConnectionDefaults
 >
 > mydb.connect()
 >
-> if mydb.does_table_exist('customer'):
->
->	mydb.load_csv_to_table('customer.csv','customer',True,'\t') # truncate first=True, delimiter=tab
->
-> else:
->
->	print('create table first')
+> mydb.load_csv_to_table('customer.csv','customer',True,'\t') # truncate first=True, delimiter=tab
 >
 > print('Table loaded')
 >
@@ -120,13 +114,7 @@ Save the connection details locally once using the method saveConnectionDefaults
 >
 > mydb.connect()
 >
-> if mydb.does_table_exist('customer'):
->
->	mydb.export_table_to_csv('customer.csv','customer','\t') # delimiter=tab
->
-> else:
->
->	print('Table does not exist.  Nothing to export.')
+> mydb.export_table_to_csv('customer.csv','customer','\t') # delimiter=tab
 >
 > print('csv file created ')
 >
