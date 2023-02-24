@@ -1,6 +1,9 @@
 # postgresdave
 A simple wrapper on psycopg2 to access Postgres
 
+### install with pip
+pip install postgresdave_package
+
 ### command line test
 py -m postgresdave_package.postgresdave
 
