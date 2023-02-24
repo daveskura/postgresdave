@@ -31,7 +31,7 @@ All the connection details will be defaulted, except password.  You can either e
 >
 > mydb = db()
 >
-> mydb.savepwd('mypassword')
+> ***mydb.savepwd('mypassword')***
 >
 > mydb.connect()
 >
