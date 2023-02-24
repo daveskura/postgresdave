@@ -86,7 +86,7 @@ class db:
 			self.db_conn_dets.DB_SCHEMA = DB_SCHEMA			#if you pass in a schema it overwrites the stored schema
 
 	def dbstr(self):
-		return self.db_conn_dets.DB_NAME + '/' + self.db_conn_dets.DB_SCHEMA + '@' + self.db_conn_dets.DB_HOST
+		return 'usr=' + self.db_conn_dets.DB_USERNAME + '; svr=' + self.db_conn_dets.DB_HOST + '; port=' + self.db_conn_dets.DB_PORT + '; Database=' + self.db_conn_dets.DB_NAME + '; Schema=' + self.db_conn_dets.DB_SCHEMA + '; pwd=**********'
 
 
 	def dbversion(self):
@@ -349,29 +349,32 @@ class db:
 			self.dbconn.close()
 
 	def connect(self):
-
+		user_response_to_save = 'N'
 		if self.db_conn_dets.DB_USERPWD == 'no-password-supplied':
-			print('Password must be passed in or stored in order to connect.\n')
-			print('Call \n\t savepwd(pwd) to use defaults or \n') 
-			print('\t saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)\n\n')
+			print('The connection password has not been passed in or stored.  In the future, call \n\t savepwd(DB_USERPWD) to connect with defaults or ')
+			print('\t saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)\n')
+			self.db_conn_dets.DB_USERPWD = input('Password :')
+			user_response_to_save = input('Save this password locally? (y/n) :')
 
-			sys.exit(0)
-		else:
-			p_options = "-c search_path=" + self.db_conn_dets.DB_SCHEMA
-			try:
-				if not self.dbconn:
-					self.dbconn = psycopg2.connect(
-							host=self.db_conn_dets.DB_HOST,
-							database=self.db_conn_dets.DB_NAME,
-							user=self.db_conn_dets.DB_USERNAME,
-							password=self.db_conn_dets.DB_USERPWD,
-							options=p_options
-					)
-					self.dbconn.set_session(autocommit=True)
-					self.cur = self.dbconn.cursor()
+		p_options = "-c search_path=" + self.db_conn_dets.DB_SCHEMA
+		try:
+			if not self.dbconn:
+				self.dbconn = psycopg2.connect(
+						host=self.db_conn_dets.DB_HOST,
+						database=self.db_conn_dets.DB_NAME,
+						user=self.db_conn_dets.DB_USERNAME,
+						password=self.db_conn_dets.DB_USERPWD,
+						options=p_options
+				)
+				self.dbconn.set_session(autocommit=True)
+				self.cur = self.dbconn.cursor()
 
-			except Exception as e:
-				raise Exception(str(e))
+			# only if successful connect after user prompted and got Y do we save pwd
+			if user_response_to_save.upper()[:1] == 'Y':
+				self.savepwd(self.db_conn_dets.DB_USERPWD)
+
+		except Exception as e:
+			raise Exception(str(e))
 
 	def query(self,qry):
 		if not self.dbconn:
@@ -408,20 +411,22 @@ class db:
 			raise Exception("SQL ERROR:\n\n" + str(e))
 
 if __name__ == '__main__':
-	print ("db command line") # 
-	print('')
 	mydb = db()
 	mydb.connect()
 	#mydb.enable_logging = True
-	mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
+	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
+
+	print('Connected')
+	print('')
+	print(mydb.dbstr())
 	print('')
 	print(mydb.dbversion())
 	print('')
-	qry = """
-	SELECT DISTINCT table_catalog as database_name, table_schema as schema 
-	FROM INFORMATION_SCHEMA.TABLES
-	"""
-	print(mydb.export_query_to_str(qry,'\t'))
+	#qry = """
+	#SELECT DISTINCT table_catalog as database_name, table_schema as schema 
+	#FROM INFORMATION_SCHEMA.TABLES
+	#"""
+	#print(mydb.export_query_to_str(qry,'\t'))
 
 	mydb.close()	
 
