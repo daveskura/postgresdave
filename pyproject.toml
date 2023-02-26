@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "postgresdave_package"
-version = "1.2.2"
+version = "1.2.3"
 authors = [
   { name="Dave Skura", email="dskura@gmail.com" },
 ]

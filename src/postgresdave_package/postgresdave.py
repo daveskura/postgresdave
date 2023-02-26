@@ -414,15 +414,12 @@ class db:
 
 if __name__ == '__main__':
 	mydb = db()
-	mydb.connect()
+	#mydb.connect()
 	#mydb.enable_logging = True
 	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
 
-	print('Connected')
-	print('')
-	print(mydb.dbstr())
-	print('')
-	print(mydb.dbversion())
+	print('Connected to ' + mydb.dbversion())
+	print('using ' + mydb.dbstr())
 	print('')
 	#qry = """
 	#SELECT DISTINCT table_catalog as database_name, table_schema as schema 
