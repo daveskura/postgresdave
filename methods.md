@@ -1,6 +1,9 @@
 ### dbversion()
 returns Postgres version
 
+### dbstr()
+returns DB_USERNAME, DB_HOST, DB_PORT, DB_NAME, DB_SCHEMA
+
 ###  __init__(DB_USERPWD,DB_SCHEMA)
 constructor.  DB_USERPWD & DB_SCHEMA are optional
 
