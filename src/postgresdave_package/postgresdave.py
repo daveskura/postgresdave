@@ -369,6 +369,14 @@ class db:
 										newline += "to_date('" + self.clean_text(row[j]) + "','" + dt_fmt + "'),"
 									else:
 										newline += "'" + self.clean_text(row[j]) + "',"
+
+								elif table_fields[j].data_type.strip().lower() == 'timestamp':
+									dt_fmt = self.getbetween(table_fields[j].comment,'[',']')
+									if dt_fmt.strip() != '':
+										newline += "to_timestamp('" + self.clean_text(row[j]) + "','" + dt_fmt + "'),"
+									else:
+										newline += "'" + self.clean_text(row[j]) + "',"
+
 								elif table_fields[j].Need_Quotes == 'QUOTE':
 									newline += "'" + self.clean_text(row[j]).replace(',','').replace("'",'').replace('"','') + "',"
 								else:
@@ -482,20 +490,20 @@ class db:
 
 if __name__ == '__main__':
 	mydb = db()
-	#mydb.connect()
+	mydb.connect()
 	#mydb.enable_logging = True
 	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
 
-	#print('Connected to ' + mydb.dbversion())
-	#print('using ' + mydb.dbstr())
-	#print('')
+	print('Connected to ' + mydb.dbversion())
+	print('using ' + mydb.dbstr())
+	print('')
 	#qry = """
 	#SELECT DISTINCT table_catalog as database_name, table_schema as schema 
 	#FROM INFORMATION_SCHEMA.TABLES
 	#"""
 	#print(mydb.export_query_to_str(qry,'\t'))
 
-	#mydb.load_csv_to_table('tesla.csv','tesla_csv',True,',')
+	#mydb.load_csv_to_table('sample.csv','sample_csv',True,',')
 
 	mydb.close()	
 
