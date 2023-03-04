@@ -10,7 +10,8 @@ import time
 class dbconnection_details: 
 	def __init__(self): 
 		self.DatabaseType='Postgres' 
-		self.updated='Feb 28/2023' 
+		self.updated='Mar 4/2023' 
+		self.settings_loaded_from_file = False
 
 		self.DB_USERNAME='' 
 		self.DB_USERPWD=''
@@ -22,20 +23,22 @@ class dbconnection_details:
 
 	def loadSettingsFromFile(self):
 		try:
-			f = open('.connection','r')
+			f = open('.schemawiz_config1','r')
 			connectionstrlines = f.read()
 			connectionstr = connectionstrlines.splitlines()[0]
 			f.close()
 			connarr = connectionstr.split(' - ')
 
 			self.DB_USERNAME	= connarr[0]
-			self.DB_HOST			= connarr[1] 
-			self.DB_PORT			= connarr[2]
-			self.DB_NAME			= connarr[3]
-			self.DB_SCHEMA		= connarr[4]
+			self.DB_USERPWD		= connarr[1]
+			self.DB_HOST			= connarr[2] 
+			self.DB_PORT			= connarr[3]
+			self.DB_NAME			= connarr[4]
+			self.DB_SCHEMA		= connarr[5]
 			if self.DB_SCHEMA.strip() == '':
 				self.DB_SCHEMA = 'public'
-
+			
+			self.settings_loaded_from_file = True
 		except:
 			#saved connection details not found. using defaults
 			self.DB_USERNAME='postgres' 
@@ -43,30 +46,14 @@ class dbconnection_details:
 			self.DB_PORT='1532' 
 			self.DB_NAME='postgres' 
 			self.DB_SCHEMA='public'		
-
-		try:
-			f = open('.pwd','r')
-			pwdlines = f.read()
-			self.DB_USERPWD = pwdlines.splitlines()[0]
-			f.close()
-		except:
 			self.DB_USERPWD='no-password-supplied'
-
-	def savepwd(self,pwd):
-		f = open('.pwd','w')
-		f.write(pwd)
-		f.close()
 
 	def dbconnectionstr(self):
 		return 'usr=' + self.DB_USERNAME + '; svr=' + self.DB_HOST + '; port=' + self.DB_PORT + '; Database=' + self.DB_NAME + '; Schema=' + self.DB_SCHEMA + '; pwd=' + self.DB_USERPWD
 
 	def saveConnectionDefaults(self,DB_USERNAME='postgres',DB_USERPWD='no-password-supplied',DB_HOST='localhost',DB_PORT='1532',DB_NAME='postgres',DB_SCHEMA='public'):
-		f = open('.pwd','w')
-		f.write(DB_USERPWD)
-		f.close()
-
-		f = open('.connection','w')
-		f.write(DB_USERNAME + ' - ' + DB_HOST + ' - ' + DB_PORT + ' - ' + DB_NAME + ' - ' + DB_SCHEMA)
+		f = open('.schemawiz_config1','w')
+		f.write(DB_USERNAME + ' - ' + DB_USERPWD + ' - ' + DB_HOST + ' - ' + DB_PORT + ' - ' + DB_NAME + ' - ' + DB_SCHEMA)
 		f.close()
 
 		self.loadSettingsFromFile()
@@ -237,14 +224,10 @@ class db:
 
 			f.close()
 
-	def savepwd(self,pwd):
-		self.db_conn_dets.savepwd(pwd)
-		self.db_conn_dets.DB_USERPWD = pwd
-
 	def saveConnectionDefaults(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA='public'):
 		self.db_conn_dets.saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)
 
-	def useConnectionDetails(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA):
+	def useConnectionDetails(self,DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA='public'):
 
 		self.db_conn_dets.DB_USERNAME = DB_USERNAME
 		self.db_conn_dets.DB_USERPWD = DB_USERPWD			
@@ -252,8 +235,6 @@ class db:
 		self.db_conn_dets.DB_PORT = DB_PORT				
 		self.db_conn_dets.DB_NAME = DB_NAME					
 		self.db_conn_dets.DB_SCHEMA = DB_SCHEMA		
-		if self.db_conn_dets.DB_SCHEMA == '':
-			self.db_conn_dets.DB_SCHEMA = 'public'
 		self.connect()
 
 	def is_an_int(self,prm):
@@ -424,12 +405,20 @@ class db:
 		if self.dbconn:
 			self.dbconn.close()
 
+	def ask_for_database_details(self):
+		self.db_conn_dets.DB_HOST = input('DB_HOST (localhost): ') or 'localhost'
+		self.db_conn_dets.DB_PORT = input('DB_PORT (1532): ') or '1532'
+		self.db_conn_dets.DB_NAME = input('DB_NAME (postgres): ') or 'postgres'
+		self.db_conn_dets.DB_SCHEMA = input('DB_SCHEMA (public): ') or 'public'
+		self.db_conn_dets.DB_USERNAME = input('DB_USERNAME (postgres): ') or 'postgres'
+		self.db_conn_dets.DB_USERPWD = input('DB_USERPWD: ') or '4165605869'
+
 	def connect(self):
 		connects_entered = False
+
 		if self.db_conn_dets.DB_USERPWD == 'no-password-supplied':
-			print('The connection password has not been passed in or stored.  In the future, call \n\t savepwd(DB_USERPWD) to connect with defaults or ')
-			print('\t saveConnectionDefaults(DB_USERNAME,DB_USERPWD,DB_HOST,DB_PORT,DB_NAME,DB_SCHEMA)\n')
-			self.db_conn_dets.DB_USERPWD = input('Password :')
+			self.ask_for_database_details()
+
 			connects_entered = True
 
 		p_options = "-c search_path=" + self.db_conn_dets.DB_SCHEMA
@@ -449,9 +438,12 @@ class db:
 				if connects_entered:
 					user_response_to_save = input('Save this password locally? (y/n) :')
 					if user_response_to_save.upper()[:1] == 'Y':
-						self.savepwd(self.db_conn_dets.DB_USERPWD)
+						self.saveConnectionDefaults(self.db_conn_dets.DB_USERNAME,self.db_conn_dets.DB_USERPWD,self.db_conn_dets.DB_HOST,self.db_conn_dets.DB_PORT,self.db_conn_dets.DB_NAME,self.db_conn_dets.DB_SCHEMA)
 
 		except Exception as e:
+			if self.db_conn_dets.settings_loaded_from_file:
+				os.remove('.schemawiz_config1')
+
 			raise Exception(str(e))
 
 	def query(self,qry):
