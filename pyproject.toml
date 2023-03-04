@@ -1,11 +1,11 @@
 [build-system]
-requires = ["hatchling","psycopg2"]
+requires = ["hatchling","psycopg2","garbledave_package"]
 
 build-backend = "hatchling.build"
 
 [project]
 name = "postgresdave_package"
-version = "1.5.0"
+version = "1.6.0"
 authors = [
   { name="Dave Skura", email="dskura@gmail.com" },
 ]
