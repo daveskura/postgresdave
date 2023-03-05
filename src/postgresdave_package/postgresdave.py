@@ -68,7 +68,7 @@ class tfield:
 		self.ordinal_position = -1
 		self.comment = '' # dateformat in csv [%Y/%m/%d]
 
-class db:
+class postgres_db:
 	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='no-schema-supplied'):
 		self.enable_logging = False
 		self.max_loglines = 500
@@ -482,7 +482,7 @@ class db:
 			raise Exception("SQL ERROR:\n\n" + str(e))
 
 if __name__ == '__main__':
-	mydb = db()
+	mydb = postgres_db()
 	mydb.connect()
 	#mydb.enable_logging = True
 	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())

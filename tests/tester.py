@@ -3,11 +3,11 @@
 """
 import os
 
-from postgresdave_package.postgresdave import db 
+from postgresdave_package.postgresdave import postgres_db 
 
 print('sample program\n')
 
-mydb = db()
+mydb = postgres_db()
 mydb.connect()
 print(mydb.dbversion())
 print(' - - - - - - - - - - - - - - - - - - - - - - - - - - -  \n')
