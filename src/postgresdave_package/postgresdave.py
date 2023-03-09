@@ -11,7 +11,7 @@ from garbledave_package.garbledave import garbledave
 class dbconnection_details: 
 	def __init__(self): 
 		self.DatabaseType='Postgres' 
-		self.updated='Mar 4/2023' 
+		self.updated='Mar 8/2023' 
 		self.settings_loaded_from_file = False
 
 		self.DB_USERNAME='' 
@@ -101,37 +101,39 @@ class postgres_db:
 	def getfielddefs(self,schema,tablename):
 		tablefields = []
 		sql = """
-		SELECT isc.column_name,data_type
+		SELECT 
+				column_name
+				,data_type
+				,Need_Quotes
+				,ordinal_position    
+				,column_comment
+
+		FROM (
+				select
+						isc.table_schema
+						,isc.table_name
+						,isc.column_name
+						,isc.data_type
 						,CASE 
-										WHEN data_type in ('"char"','anyarray','ARRAY','character','character varying','name','text','') THEN 'QUOTE'
-										WHEN data_type in ('date','timestamp with time zone','timestamp without time zone') THEN 'QUOTE'
-										ELSE
-														'NO QUOTE'
+								WHEN isc.data_type in ('"char"','anyarray','ARRAY','character','character varying','name','text','') THEN 'QUOTE'
+								WHEN isc.data_type in ('date','timestamp with time zone','timestamp without time zone') THEN 'QUOTE'
+								ELSE
+										'NO QUOTE'
 						END as Need_Quotes
-						,ordinal_position
-						,column_comment
-		FROM information_schema.columns isc
-		INNER JOIN (
-								SELECT cols.table_catalog,cols.table_name,cols.table_schema,
-										cols.column_name, (
-												SELECT
-														pg_catalog.col_description(c.oid, cols.ordinal_position::int)
-												FROM
-														pg_catalog.pg_class c
-												WHERE
-														c.oid = (SELECT ('"' || cols.table_name || '"')::regclass::oid)
-														AND c.relname = cols.table_name
-										) AS column_comment
-								FROM
-										information_schema.columns cols
-								) CMTS ON ( isc.table_catalog = CMTS.table_catalog and
-														isc.table_schema = CMTS.table_schema and
-														isc.table_name = CMTS.table_name and
-														isc.column_name = CMTS.column_name
-														)
-		WHERE isc.table_catalog = '""" + self.db_conn_dets.DB_NAME + """' and 
-				isc.table_schema = '""" + schema + """' and
-				isc.table_name='""" + tablename + """'
+						,isc.ordinal_position    
+				 FROM information_schema.columns isc
+				 WHERE  upper(isc.table_catalog) = upper('""" + self.db_conn_dets.DB_NAME + """') and 
+								upper(isc.table_schema) = upper('""" + schema + """') and
+								upper(isc.table_name) = upper('""" + tablename + """') 
+				 ) main LEFT JOIN (
+						SELECT c.table_schema,c.table_name, c.column_name,pgd.description as column_comment
+						FROM pg_catalog.pg_statio_all_tables as st
+								inner join pg_catalog.pg_description pgd on (pgd.objoid = st.relid)
+								inner join information_schema.columns c on (
+										pgd.objsubid   = c.ordinal_position and
+										c.table_schema = st.schemaname and
+										c.table_name   = st.relname)
+				) col_comments USING (table_schema,table_name, column_name)
 		ORDER BY ordinal_position
 		"""
 		data = self.query(sql)
@@ -149,7 +151,7 @@ class postgres_db:
 		return tablefields
 
 	def dbstr(self):
-		return 'usr=' + self.db_conn_dets.DB_USERNAME + '; svr=' + self.db_conn_dets.DB_HOST + '; port=' + self.db_conn_dets.DB_PORT + '; Database=' + self.db_conn_dets.DB_NAME + '; Schema=' + self.db_conn_dets.DB_SCHEMA + '; pwd=**********'
+		return 'usr=' + self.db_conn_dets.DB_USERNAME + '; svr=' + self.db_conn_dets.DB_HOST + '; port=' + self.db_conn_dets.DB_PORT + '; Database=' + self.db_conn_dets.DB_NAME + '; Schema=' + self.db_conn_dets.DB_SCHEMA 
 
 	def dbversion(self):
 		return self.queryone('SELECT VERSION()')
@@ -362,17 +364,19 @@ class postgres_db:
 								elif table_fields[j].Need_Quotes == 'QUOTE':
 									newline += "'" + self.clean_text(row[j]).replace(',','').replace("'",'').replace('"','') + "',"
 								else:
-									newline += self.clean_text(row[j]).replace(',','').replace("'",'').replace('"','') + ","
+									val = self.clean_text(row[j]).replace(',','').replace("'",'').replace('"','')
+									if val == '':
+										newline += "NULL,"
+									else:
+										newline += val + ","
 
 							
 						ilines += newline[:-1] + '),'
 						
-						if batchcount > 500:
+						if batchcount > 5:
 							qry = isqlhdr + ilines[:-1]
 							batchcount = 0
 							ilines = ''
-							#print(qry)
-							#sys.exit(0)
 							self.execute(qry)
 
 		if batchcount > 0:
@@ -395,7 +399,7 @@ class postgres_db:
 		sql = """
 			SELECT count(*)  
 			FROM information_schema.tables
-			WHERE table_schema = '""" + this_schema + """' and table_name='""" + this_table + "'"
+			WHERE upper(table_schema) = upper('""" + this_schema + """') and upper(table_name) = upper('""" + this_table + "')"
 		
 		if self.queryone(sql) == 0:
 			return False
@@ -484,19 +488,20 @@ class postgres_db:
 if __name__ == '__main__':
 	mydb = postgres_db()
 	mydb.connect()
+	print(mydb.dbstr())	
+
+	#print(mydb.does_table_exist('newtbl'))
 	#mydb.enable_logging = True
 	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
 
-	print('Connected to ' + mydb.dbversion())
-	print('using ' + mydb.dbstr())
-	print('')
+	#print('Connected to ' + mydb.dbversion())
 	#qry = """
 	#SELECT DISTINCT table_catalog as database_name, table_schema as schema 
 	#FROM INFORMATION_SCHEMA.TABLES
 	#"""
 	#print(mydb.export_query_to_str(qry,'\t'))
 
-	#mydb.load_csv_to_table('sample.csv','sample_csv',True,',')
+	#mydb.load_csv_to_table('CanadianPostalCodes.csv','canweather.canadianpostalcodes',True,',')
 
 	mydb.close()	
 
