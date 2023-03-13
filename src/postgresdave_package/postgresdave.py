@@ -373,7 +373,7 @@ class postgres_db:
 							
 						ilines += newline[:-1] + '),'
 						
-						if batchcount > 5:
+						if batchcount > 500:
 							qry = isqlhdr + ilines[:-1]
 							batchcount = 0
 							ilines = ''
