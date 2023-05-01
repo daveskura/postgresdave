@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "postgresdave_package"
-version = "1.7.6"
+version = "1.8.0"
 dependencies = [
   'psycopg2 >= 2.9.5',
   'garbledave_package >= 1.0.0'

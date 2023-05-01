@@ -70,6 +70,8 @@ class tfield:
 
 class postgres_db:
 	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='no-schema-supplied'):
+		self.delimiter = ''
+		self.delimiter_replace = '^~^'
 		self.enable_logging = False
 		self.max_loglines = 500
 		self.db_conn_dets = dbconnection_details()
@@ -157,18 +159,16 @@ class postgres_db:
 		return self.queryone('SELECT VERSION()')
 
 	def clean_column_name(self,col_name):
-
-		new_column_name = col_name
-		chardict = self.count_chars(col_name)
-		alphacount = self.count_alpha(chardict)
-		nbrcount = self.count_nbr(chardict)
-		if ((len(col_name)-2) == (alphacount + nbrcount)) and '1234567890'.find(col_name[:1]) == -1:
-			new_column_name = self.clean_text(col_name) # .replace('"','').strip()
+		col = col_name.replace(' ','_')
+		new_column_name = ''
+		for i in range(0,len(col)):
+			if 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_'.find(col[i]) > -1:
+				new_column_name += col[i]
 
 		return new_column_name
 
 	def clean_text(self,ptext): # remove optional double quotes
-		text = ptext.strip()
+		text = ptext.replace(self.delimiter_replace,self.delimiter).strip()
 		if (text[:1] == '"' and text[-1:] == '"'):
 			return text[1:-1]
 		else:
@@ -297,7 +297,29 @@ class postgres_db:
 
 		self.export_query_to_csv('SELECT * FROM ' + qualified_table,csvfile,szdelimiter)
 
+	def handledblquotes(self,rowwithquotes):
+		newstr = ''
+		quotecount = 0
+		cvtmode = False
+		for i in range (0,len(rowwithquotes)-1):
+			if rowwithquotes[i] == '"':
+				quotecount += 1
+			
+			if (quotecount % 2) == 1:
+				cvtmode = True 
+			else:
+				cvtmode = False
+
+			if cvtmode and rowwithquotes[i] == self.delimiter:
+				newstr += self.delimiter_replace
+			elif rowwithquotes[i] != '"':
+				newstr += rowwithquotes[i]
+			
+		return newstr
+
+
 	def load_csv_to_table(self,csvfile,tblname,withtruncate=True,szdelimiter=',',fields='',withextrafields={}):
+		self.delimiter = szdelimiter
 		this_schema = tblname.split('.')[0]
 		try:
 			this_table = tblname.split('.')[1]
@@ -338,7 +360,8 @@ class postgres_db:
 						skiprow1 = 1
 					else:
 						batchcount += 1
-						row = line.rstrip("\n").split(szdelimiter)
+						unquotedline = self.handledblquotes(line.rstrip("\n"))
+						row = unquotedline.split(szdelimiter)
 						newline = "("
 						for var in withextrafields:
 							newline += "'" + withextrafields[var]  + "',"
@@ -362,9 +385,9 @@ class postgres_db:
 										newline += "'" + self.clean_text(row[j]) + "',"
 
 								elif table_fields[j].Need_Quotes == 'QUOTE':
-									newline += "'" + self.clean_text(row[j]).replace(',','').replace("'",'').replace('"','') + "',"
+									newline += "'" + self.clean_text(row[j]).replace("'",'').replace('"','') + "',"
 								else:
-									val = self.clean_text(row[j]).replace(',','').replace("'",'').replace('"','')
+									val = self.clean_text(row[j]).replace("'",'').replace('"','')
 									if val == '':
 										newline += "NULL,"
 									else:
@@ -501,7 +524,7 @@ if __name__ == '__main__':
 	#"""
 	#print(mydb.export_query_to_str(qry,'\t'))
 
-	#mydb.load_csv_to_table('CanadianPostalCodes.csv','canweather.canadianpostalcodes',True,',')
+	#mydb.load_csv_to_table('testcase1.csv','testcase1',True,',')
 
 	mydb.close()	
 
