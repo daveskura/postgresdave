@@ -1,0 +1,117 @@
+2023-05-2 9:15:27
+duration=0.957763671875
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220613.T150010/LOAD00000001.csv.gz',218370)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220613.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.9638671875
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220612.T150010/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.956787109375
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220612.T150010/LOAD00000001.csv.gz',221733)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.964111328125
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220612.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220611.T150011/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220611.T150011/LOAD00000001.csv.gz',221733)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220611.T150011/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.969970703125
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220610.T150010/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220610.T150010/LOAD00000001.csv.gz',221733)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.988525390625
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220610.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=1.064453125
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220609.T150010/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.95654296875
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220609.T150010/LOAD00000001.csv.gz',221733)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.953125
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220609.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220608.T150010/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.998779296875
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220608.T150010/LOAD00000001.csv.gz',221733)
+ ------------ 
+2023-05-2 9:15:27
+duration=1.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220608.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220607.T150013/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220607.T150013/LOAD00000001.csv.gz',221735)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220607.T150013/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.999267578125
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220606.T150010/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220606.T150010/LOAD00000001.csv.gz',221735)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.9990234375
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220606.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220605.T150010/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=1.001708984375
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220605.T150010/LOAD00000001.csv.gz',221735)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.0
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220605.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.996826171875
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220604.T150010/LOAD00000001.dfm',167)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.955810546875
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220604.T150010/LOAD00000001.csv.gz',226223)
+ ------------ 
+2023-05-2 9:15:27
+duration=0.959228515625
+INSERT INTO public.gcsbuckets(project,bucket,storageclass,filename,size) VALUES ('lt-dia-lake-sbx-landing','sb-cerebro-sbx-landing','REGIONAL','pt/reference_internal/IPFR.PROMOACTIVITYMAP/D20220604.T150010/',NULL)
+ ------------ 
+2023-05-2 9:15:27

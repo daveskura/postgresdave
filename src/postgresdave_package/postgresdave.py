@@ -301,7 +301,7 @@ class postgres_db:
 		newstr = ''
 		quotecount = 0
 		cvtmode = False
-		for i in range (0,len(rowwithquotes)-1):
+		for i in range (0,len(rowwithquotes)):
 			if rowwithquotes[i] == '"':
 				quotecount += 1
 			
@@ -362,6 +362,10 @@ class postgres_db:
 						batchcount += 1
 						unquotedline = self.handledblquotes(line.rstrip("\n"))
 						row = unquotedline.split(szdelimiter)
+						missingfldcount = len(hdrs) - len(row)
+						for x in range(0,missingfldcount):
+							row.append('NULL')
+
 						newline = "("
 						for var in withextrafields:
 							newline += "'" + withextrafields[var]  + "',"
@@ -400,6 +404,8 @@ class postgres_db:
 							qry = isqlhdr + ilines[:-1]
 							batchcount = 0
 							ilines = ''
+							#print(qry)
+							#sys.exit(0)
 							self.execute(qry)
 
 		if batchcount > 0:
@@ -513,7 +519,7 @@ if __name__ == '__main__':
 	mydb.connect()
 	print(mydb.dbstr())	
 
-	#print(mydb.does_table_exist('newtbl'))
+	#print(mydb.does_table_exist('projectbuckets'))
 	#mydb.enable_logging = True
 	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
 
@@ -524,7 +530,7 @@ if __name__ == '__main__':
 	#"""
 	#print(mydb.export_query_to_str(qry,'\t'))
 
-	#mydb.load_csv_to_table('testcase1.csv','testcase1',True,',')
+	mydb.load_csv_to_table('projectbuckets.tsv','projectbuckets',True,'\t')
 
 	mydb.close()	
 
