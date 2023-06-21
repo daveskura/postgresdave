@@ -23,7 +23,7 @@
 		select table_name, table_schema, 
 		     query_to_xml(
 			concat('select count(*) as cnt from ', table_schema, '.',table_name)
-		     , false, true, '') as xml_count
+		     , false, true, '') as xml_count -- <row xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><cnt>7141</cnt></row>
 		from information_schema.tables
 		where table_name='bqdatasets' and table_schema = 'public' 
 	) t;
