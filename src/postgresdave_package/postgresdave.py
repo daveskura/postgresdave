@@ -8,8 +8,31 @@ from datetime import *
 import time
 from garbledave_package.garbledave import garbledave 
 
+def main():
+	mydb = postgres_db('thisone')
+	mydb.connect()
+	mydb = postgres_db('that one')
+	mydb.connect()
+	print(mydb.dbstr())	
+
+	#print(mydb.does_table_exist('projectbuckets'))
+	#mydb.enable_logging = True
+	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
+
+	#print('Connected to ' + mydb.dbversion())
+	#qry = """
+	#SELECT DISTINCT table_catalog as database_name, table_schema as schema 
+	#FROM INFORMATION_SCHEMA.TABLES
+	#"""
+	#print(mydb.export_query_to_str(qry,'\t'))
+
+	#mydb.load_csv_to_table('projectbuckets.tsv','projectbuckets',True,'\t')
+
+	mydb.close()	
+
 class dbconnection_details: 
-	def __init__(self): 
+	def __init__(self,DSN): 
+		self.DSN = DSN
 		self.DatabaseType='Postgres' 
 		self.updated='Mar 8/2023' 
 		self.settings_loaded_from_file = False
@@ -26,21 +49,29 @@ class dbconnection_details:
 		try:
 			f = open('.schemawiz_config1','r')
 			connectionstrlines = f.read()
-			connectionstr = garbledave().ungarbleit(connectionstrlines.splitlines()[0])
 			f.close()
-			connarr = connectionstr.split(' - ')
-
-			self.DB_USERNAME	= connarr[0]
-			self.DB_USERPWD		= connarr[1]
-			self.DB_HOST			= connarr[2] 
-			self.DB_PORT			= connarr[3]
-			self.DB_NAME			= connarr[4]
-			self.DB_SCHEMA		= connarr[5]
-			if self.DB_SCHEMA.strip() == '':
-				self.DB_SCHEMA = 'public'
+			connectionlines = connectionstrlines.split('\n')
+			for connectionline in connectionlines:
+				connectionstr = garbledave().ungarbleit(connectionline)
+				connarr = connectionstr.split(' - ')
+				if connarr[0] == self.DSN:
+						
+					self.DB_USERNAME	= connarr[1]
+					self.DB_USERPWD		= connarr[2]
+					self.DB_HOST			= connarr[3] 
+					self.DB_PORT			= connarr[4]
+					self.DB_NAME			= connarr[5]
+					self.DB_SCHEMA		= connarr[6]
+					if self.DB_SCHEMA.strip() == '':
+						self.DB_SCHEMA = 'public'
 			
-			self.settings_loaded_from_file = True
+					self.settings_loaded_from_file = True
+					break
+
 		except:
+			self.settings_loaded_from_file = False
+		
+		if not self.settings_loaded_from_file:
 			#saved connection details not found. using defaults
 			self.DB_USERNAME='postgres' 
 			self.DB_HOST='localhost' 
@@ -49,12 +80,14 @@ class dbconnection_details:
 			self.DB_SCHEMA='public'		
 			self.DB_USERPWD='no-password-supplied'
 
+		return self.settings_loaded_from_file
+
 	def dbconnectionstr(self):
-		return 'usr=' + self.DB_USERNAME + '; svr=' + self.DB_HOST + '; port=' + self.DB_PORT + '; Database=' + self.DB_NAME + '; Schema=' + self.DB_SCHEMA + '; pwd=' + self.DB_USERPWD
+		return 'usr=' + self.DB_USERNAME + '; svr=' + self.DB_HOST + '; port=' + self.DB_PORT + '; Database=' + self.DB_NAME + '; Schema=' + self.DB_SCHEMA 
 
 	def saveConnectionDefaults(self,DB_USERNAME='postgres',DB_USERPWD='no-password-supplied',DB_HOST='localhost',DB_PORT='1532',DB_NAME='postgres',DB_SCHEMA='public'):
-		f = open('.schemawiz_config1','w')
-		f.write(garbledave().garbleit(DB_USERNAME + ' - ' + DB_USERPWD + ' - ' + DB_HOST + ' - ' + DB_PORT + ' - ' + DB_NAME + ' - ' + DB_SCHEMA))
+		f = open('.schemawiz_config1','a')
+		f.write(garbledave().garbleit(self.DSN + ' - ' + DB_USERNAME + ' - ' + DB_USERPWD + ' - ' + DB_HOST + ' - ' + DB_PORT + ' - ' + DB_NAME + ' - ' + DB_SCHEMA) + '\n')
 		f.close()
 
 		self.loadSettingsFromFile()
@@ -69,12 +102,14 @@ class tfield:
 		self.comment = '' # dateformat in csv [%Y/%m/%d]
 
 class postgres_db:
-	def __init__(self,DB_USERPWD='no-password-supplied',DB_SCHEMA='no-schema-supplied'):
+	def __init__(self,DSN='default',DB_USERPWD='no-password-supplied',DB_SCHEMA='no-schema-supplied'):
+		self.DSN = DSN
+
 		self.delimiter = ''
 		self.delimiter_replace = '^~^'
 		self.enable_logging = False
 		self.max_loglines = 500
-		self.db_conn_dets = dbconnection_details()
+		self.db_conn_dets = dbconnection_details(self.DSN)
 		self.dbconn = None
 		self.cur = None
 
@@ -440,6 +475,7 @@ class postgres_db:
 			self.dbconn.close()
 
 	def ask_for_database_details(self):
+		print('Asking about DSN: ' +  self.DSN)
 		self.db_conn_dets.DB_HOST = input('DB_HOST (localhost): ') or 'localhost'
 		self.db_conn_dets.DB_PORT = input('DB_PORT (1532): ') or '1532'
 		self.db_conn_dets.DB_NAME = input('DB_NAME (postgres): ') or 'postgres'
@@ -515,22 +551,5 @@ class postgres_db:
 			raise Exception("SQL ERROR:\n\n" + str(e))
 
 if __name__ == '__main__':
-	mydb = postgres_db()
-	mydb.connect()
-	print(mydb.dbstr())	
-
-	#print(mydb.does_table_exist('projectbuckets'))
-	#mydb.enable_logging = True
-	#mydb.logquery(mydb.db_conn_dets.dbconnectionstr())
-
-	#print('Connected to ' + mydb.dbversion())
-	#qry = """
-	#SELECT DISTINCT table_catalog as database_name, table_schema as schema 
-	#FROM INFORMATION_SCHEMA.TABLES
-	#"""
-	#print(mydb.export_query_to_str(qry,'\t'))
-
-	mydb.load_csv_to_table('projectbuckets.tsv','projectbuckets',True,'\t')
-
-	mydb.close()	
+	main()
 
