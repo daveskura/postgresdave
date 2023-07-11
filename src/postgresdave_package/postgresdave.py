@@ -9,7 +9,7 @@ import time
 from garbledave_package.garbledave import garbledave 
 
 def main():
-	mydb = postgres_db('thisone')
+	mydb = postgres_db('new one')
 	mydb.connect()
 	mydb = postgres_db('that one')
 	mydb.connect()
