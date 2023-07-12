@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling","psycopg2","garbledave_package"]
+requires = ["hatchling","psycopg2-binary","garbledave_package"]
 
 build-backend = "hatchling.build"
 
@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 name = "postgresdave_package"
 version = "2.0.3"
 dependencies = [
-  'psycopg2 >= 2.9.5',
+  'psycopg2-binary >= 2.9.5',
   'garbledave_package >= 1.0.0'
 ]
 authors = [
