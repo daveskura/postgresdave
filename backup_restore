@@ -1,0 +1,13 @@
+
+*****backup command*******
+pg_dump -h dma-customer-demo.cluster-c8u8zykyv8mc.us-east-2.rds.amazonaws.com -Fd -d stars_beta -j 8 -v -U postgres -f stars_beta_backup
+
+psql -h dma-customer-demo.cluster-c8u8zykyv8mc.us-east-2.rds.amazonaws.com -U postgres
+#CREATE DATABASE stars_beta_restored
+
+
+****restore command*******
+pg_restore -h dma-customer-demo.cluster-c8u8zykyv8mc.us-east-2.rds.amazonaws.com -Fd -d stars_beta_restored -j 8 -v -U postgres stars_beta_backup
+
+****restore to a local server command*******
+pg_restore -h 127.0.0.1 -Fd -d stars_beta_restored -j 8 -v -U postgres stars_beta_backup
